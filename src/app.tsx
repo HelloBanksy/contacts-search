@@ -7,7 +7,7 @@ import { useInfiniteScroll } from "./utils/use-infinite-scroll";
 
 export type TContactsData = typeof data;
 
-const CONTACTS_PAGE_SIZE = 3;
+const CONTACTS_PAGE_SIZE = 10;
 
 export function App() {
   const [searchValue, setSetarchValue] = useState<string | undefined>(
@@ -15,55 +15,65 @@ export function App() {
   );
   const [currentResultsPage, setCurrentResultsPage] = useState(0);
 
-  const contacts = searchValue ? getContacts(data, searchValue) : data;
+  const filteredContacts = searchValue ? getContacts(data, searchValue) : data;
 
-  const searchedContactsToRender = contacts.slice(
+  const searchedContactsToRender = filteredContacts.slice(
     0,
     currentResultsPage * CONTACTS_PAGE_SIZE
   );
 
   const { observerTarget } = useInfiniteScroll(() => {
-    setCurrentResultsPage((currentPage) => currentPage + 1);
+    if (filteredContacts.length > searchedContactsToRender.length) {
+      setCurrentResultsPage((currentPage) => currentPage + 1);
+    }
   });
 
-  const onProfilePictureLoadError = (
+  const onProfilePictureError = (
     e: SyntheticEvent<HTMLImageElement, Event>
   ) => {
     const currentTarget = e.target as HTMLImageElement;
-    currentTarget.src = "/profile-pictures/placeholder.png";
+    currentTarget.src =
+      import.meta.env.BASE_URL + "/profile-pictures/placeholder.png";
   };
+
+  const showNoContactsPlaceholder =
+    searchedContactsToRender.length === 0 && searchValue?.length;
 
   return (
     <div className="flex justify-center h-full">
       <div className="flex flex-col gap-y-4 w-[700px] py-4 h-full">
         <SearchInput onChange={setSetarchValue} wait={500} />
         <div className="h-auto overflow-scroll flex flex-col gap-y-4 flex-1">
-          {searchedContactsToRender.map((person) => {
-            return (
-              <div
-                className="w-full border flex gap-x-8 p-4 rounded-xl shadow-xl"
-                key={person._id}
-              >
-                <img
-                  className="w-20 h-20 rounded-full object-cover bg-gradient-to-t"
-                  src={`/profile-pictures/${person.picture}`}
-                  onError={onProfilePictureLoadError}
-                />
-                <div className="flex flex-col">
-                  <h2>
-                    <b>{person.name}</b>
-                  </h2>
-                  <span className="text-sm">
-                    Age: {calculateAge(person.birthday)}
-                  </span>
-                  <span className="text-sm">Phone: {person.phone_number}</span>
-                  <span className="text-sm">Address: {person.address}</span>
+          {!showNoContactsPlaceholder &&
+            searchedContactsToRender.map((person) => {
+              return (
+                <div
+                  className="w-full border flex gap-x-8 p-4 rounded-xl shadow-xl"
+                  key={person._id}
+                >
+                  <img
+                    className="w-20 h-20 rounded-full object-cover bg-gradient-to-t"
+                    src={`${import.meta.env.BASE_URL}/profile-pictures/${
+                      person.picture
+                    }`}
+                    onError={onProfilePictureError}
+                  />
+                  <div className="flex flex-col">
+                    <h2>
+                      <b>{person.name}</b>
+                    </h2>
+                    <span className="text-sm">
+                      Age: {calculateAge(person.birthday)}
+                    </span>
+                    <span className="text-sm">
+                      Phone: {person.phone_number}
+                    </span>
+                    <span className="text-sm">Address: {person.address}</span>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-
-          {searchedContactsToRender.length === 0 && (
+              );
+            })}
+          {showNoContactsPlaceholder && (
             <span className="font-bold">
               No contacts found for: "{searchValue}"
             </span>
