@@ -1,25 +1,22 @@
-import { debounce } from "lodash";
+import { debounce } from 'lodash'
 
 interface Props {
-  onChange?: (value: string) => void;
-  wait?: number;
+  onChange?: (value: string) => void
+  wait?: number
 }
 
 export function SearchInput(props: Props) {
-  const { onChange, wait = 0 } = props;
+  const { onChange, wait = 0 } = props
 
   const onInputValueChange = debounce((value: string) => {
     if (onChange) {
-      onChange(value);
+      onChange(value)
     }
-  }, wait);
+  }, wait)
 
   return (
     <>
-      <label
-        htmlFor="search"
-        className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
-      >
+      <label htmlFor="search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
         Search
       </label>
       <div className="relative">
@@ -49,9 +46,9 @@ export function SearchInput(props: Props) {
         />
       </div>
       <span className="text-xs text-[#d2d2d2]">
-        Support patters: any string given (searches through names), "
-        {`<name> <age>`}" (Josh 11), "{`<phone> <name>`}" (0535271540 Josh)
+        Support patters: any string given (searches through names), "{`<name> <age>`}" (Josh 11), "{`<phone> <name>`}"
+        (0535271540 Josh)
       </span>
     </>
-  );
+  )
 }
