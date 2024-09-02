@@ -16,7 +16,7 @@ export function useInfiniteScroll(callback: () => void) {
     if (observerTarget.current) {
       observer.observe(observerTarget.current);
     }
-  }, [observerTarget]);
+  }, [observerTarget, callback]);
 
   return { observerTarget };
 }
